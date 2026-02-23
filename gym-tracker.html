@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Training Log</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       DESIGN SYSTEM — W2 Slate & Linen
+       Background:  #2a2d35  slate blue-grey
+       Surface:     #23262e  darker slate
+       Border:      #353840  subtle line
+       Text:        #e8e0d0  warm cream
+       Muted:       #6a6d78  mid grey
+       Accent rest: #c4613a  terracotta
+       Warning:     #f59e0b  amber
+       Danger:      #ef4444  red
+       Serif:       Lora
+       Mono:        IBM Plex Mono
+       Sans:        DM Sans
+    ============================================================ */
+    :root {
+      --bg:         #2a2d35;
+      --surface:    #23262e;
+      --surface2:   #1e2028;
+      --border:     #353840;
+      --border2:    #2e3138;
+      --text:       #e8e0d0;
+      --muted:      #6a6d78;
+      --muted2:     #4a4d58;
+      --terracotta: #c4613a;
+      --terra-dim:  rgba(196,97,58,0.15);
+      --terra-text: #e8b09a;
+      --warning:    #f59e0b;
+      --danger:     #ef4444;
+      --success:    #4ade80;
+      --cream-btn:  #c8c0b0;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      color: var(--text);
+      max-width: 480px;
+      margin: 0 auto;
+      padding-bottom: 70px;
+      overflow-x: hidden;
+    }
+
+    .hidden { display:none !important; }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    .header {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 18px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-title {
+      font-family: 'Lora', serif;
+      font-size: 1.25rem; font-weight: 700;
+      color: var(--text); letter-spacing: 0.3px;
+    }
+    .header-right { text-align: right; }
+    .header-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem; color: var(--muted);
+      letter-spacing: 1px; line-height: 1.7;
+    }
+
+    /* ============================================================
+       SESSION BAR
+    ============================================================ */
+    .session-bar {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .session-status { display:flex; align-items:center; gap:10px; }
+    .session-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(74,222,128,0.08);
+      border: 1px solid rgba(74,222,128,0.22);
+      border-radius: 100px; padding: 5px 12px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .session-pill.active { opacity: 1; }
+    .session-pill-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4ade80;
+      animation: blink 1.6s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .session-pill-label {
+      font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 2px; color: #4ade80;
+      text-transform: uppercase;
+    }
+    .session-idle {
+      font-size: 0.78rem; color: var(--muted2);
+      font-weight: 500;
+    }
+    .session-timer {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.82rem; color: var(--muted);
+      letter-spacing: 2px;
+    }
+    .offline-badge {
+      display: none; align-items: center; gap: 5px;
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 100px; padding: 4px 10px;
+      font-size: 0.63rem; font-weight: 700;
+      letter-spacing: 1px; color: var(--warning);
+      text-transform: uppercase;
+    }
+    .offline-badge.visible { display: flex; }
+
+    /* ============================================================
+       RESTORE BANNER
+    ============================================================ */
+    .restore-banner {
+      background: rgba(245,158,11,0.06);
+      border-bottom: 1px solid rgba(245,158,11,0.2);
+      padding: 13px 18px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .restore-icon { font-size: 1.3rem; flex-shrink:0; }
+    .restore-text { flex: 1; min-width:0; }
+    .restore-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 800;
+      letter-spacing: 1.5px; color: var(--warning);
+      text-transform: uppercase;
+    }
+    .restore-sub { font-size: 0.7rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+    .restore-actions { display: flex; gap: 8px; flex-shrink:0; }
+    .restore-yes {
+      background: var(--warning); color: #000;
+      border: none; border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 800;
+      letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; min-height: 42px;
+    }
+    .restore-yes:active { opacity: 0.8; }
+    .restore-no {
+      background: none; color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; min-height: 42px;
+    }
+    .restore-no:active { color: var(--danger); }
+
+    /* ============================================================
+       START SCREEN
+    ============================================================ */
+    .start-screen {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 70vh; padding: 40px 30px; gap: 16px;
+      text-align: center;
+    }
+    .start-logo {
+      font-family: 'Lora', serif;
+      font-size: 3rem; font-weight: 700;
+      color: var(--text); line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .start-tagline {
+      font-size: 0.88rem; color: var(--muted);
+      line-height: 1.7; margin-bottom: 16px;
+    }
+
+    /* ============================================================
+       CONTENT WRAPPER
+    ============================================================ */
+    .content { padding: 16px 18px; }
+
+    /* ============================================================
+       SECTION LABEL
+    ============================================================ */
+    .section-label {
+      font-size: 0.58rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted2); margin-bottom: 8px;
+    }
+
+    /* ============================================================
+       EXERCISE SELECTOR
+    ============================================================ */
+    .exercise-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px; margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .exercise-name-row {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .exercise-name {
+      font-family: 'Lora', serif;
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--text); cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .exercise-name-placeholder {
+      font-family: 'Lora', serif;
+      font-style: italic; font-size: 1.1rem;
+      color: var(--muted2); cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .exercise-change-hint {
+      font-size: 0.6rem; letter-spacing: 2px;
+      color: var(--muted2); text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .exercise-select-row {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: none;
+    }
+    .exercise-select-row.open { display: block; }
+    .exercise-select {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      padding: 12px 14px; outline: none;
+      appearance: none; -webkit-appearance: none;
+      border-radius: 3px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236a6d78' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    .exercise-select option { background: #23262e; }
+    .add-exercise-row { display: flex; gap: 8px; margin-top: 10px; }
+    .add-exercise-input {
+      flex: 1; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 11px 13px; font-size: 0.9rem;
+      font-family: 'DM Sans', sans-serif; color: var(--text);
+      outline: none;
+    }
+    .add-exercise-input::placeholder { color: var(--muted2); }
+    .add-exercise-input:focus { border-color: var(--cream-btn); }
+    .add-exercise-btn {
+      background: var(--border); border: none;
+      border-radius: 3px; padding: 11px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; font-weight: 700;
+      color: var(--text); cursor: pointer;
+      white-space: nowrap; letter-spacing: 1px;
+    }
+    .add-exercise-btn:active { background: var(--cream-btn); color: #000; }
+    .exercise-action-row {
+      display: none; padding: 10px 16px; gap: 8px;
+    }
+    .exercise-action-row.visible { display: flex; }
+    .btn-history {
+      flex: 1; background: none;
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 11px; font-size: 0.8rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600; color: var(--muted);
+      cursor: pointer; min-height: 44px;
+      display: flex; align-items: center;
+      justify-content: center; gap: 6px;
+    }
+    .btn-history:active { color: var(--text); border-color: var(--cream-btn); }
+    .btn-remove-ex {
+      background: none; border: 1px solid var(--border2);
+      border-radius: 3px; padding: 11px 14px;
+      font-size: 0.75rem; font-family: 'DM Sans', sans-serif;
+      font-weight: 600; color: var(--muted2);
+      cursor: pointer; min-height: 44px; white-space: nowrap;
+    }
+    .btn-remove-ex:active { color: var(--danger); border-color: var(--danger); }
+
+    /* ============================================================
+       REST TIMER CARD  (terracotta inverted when resting)
+    ============================================================ */
+    .rest-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 0;
+      margin-bottom: 14px;
+      transition: background 0.4s, border-color 0.4s;
+      overflow: hidden;
+    }
+    .rest-card.resting {
+      background: var(--terracotta);
+      border-color: var(--terracotta);
+    }
+    /* Top row: timer + reset */
+    .rest-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px;
+      padding: 14px 16px 12px;
+    }
+    .rest-left { flex: 1; }
+    .rest-label {
+      font-size: 0.56rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 3px;
+      transition: color 0.4s;
+    }
+    .rest-card.resting .rest-label { color: rgba(255,255,255,0.6); }
+    .rest-timer-display {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 2.4rem; font-weight: 700;
+      color: var(--muted); line-height: 1; letter-spacing: 2px;
+      transition: color 0.4s;
+    }
+    .rest-card.resting .rest-timer-display { color: #fff; }
+    .rest-next-set {
+      margin-top: 5px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.95rem; font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      display: none;
+    }
+    .rest-next-set.visible { display: block; }
+    .rest-next-label {
+      font-size: 0.52rem; letter-spacing: 2px;
+      color: rgba(255,255,255,0.55); text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .rest-reset-btn {
+      background: none; border: 1px solid var(--border);
+      border-radius: 3px; padding: 7px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--muted); cursor: pointer;
+      white-space: nowrap; transition: all 0.4s;
+      min-height: 36px; flex-shrink: 0;
+    }
+    .rest-card.resting .rest-reset-btn {
+      border-color: rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.7);
+    }
+    .rest-reset-btn:active { opacity: 0.7; }
+    /* Bottom row: target rest stepper — prominent, full width */
+    .rest-target-bar {
+      border-top: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface2);
+      transition: background 0.4s, border-color 0.4s;
+    }
+    .rest-card.resting .rest-target-bar {
+      background: rgba(0,0,0,0.18);
+      border-color: rgba(255,255,255,0.12);
+    }
+    /* Highlight when no target set yet */
+    .rest-target-bar.unset {
+      background: rgba(200,192,176,0.07);
+      border-top-color: rgba(200,192,176,0.2);
+    }
+    .rest-target-label {
+      font-size: 0.56rem; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--muted2); white-space: nowrap; flex-shrink: 0;
+      transition: color 0.4s;
+    }
+    .rest-card.resting .rest-target-label { color: rgba(255,255,255,0.5); }
+    .rest-target-bar.unset .rest-target-label { color: var(--cream-btn); }
+    .rest-target-stepper {
+      display: flex; align-items: stretch; flex: 1;
+      border: 1px solid var(--border); border-radius: 3px;
+      overflow: hidden; background: var(--surface);
+      transition: border-color 0.4s;
+    }
+    .rest-target-bar.unset .rest-target-stepper { border-color: rgba(200,192,176,0.35); }
+    .rest-card.resting .rest-target-stepper {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.2);
+    }
+    .rest-target-btn {
+      background: var(--border2); border: none;
+      color: var(--muted); font-size: 1.1rem;
+      font-weight: 300; cursor: pointer;
+      padding: 0 16px; min-height: 46px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.1s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .rest-target-btn:active { background: var(--terracotta); color: #fff; }
+    .rest-card.resting .rest-target-btn { background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.6); }
+    .rest-target-display {
+      flex: 1; background: transparent;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.15rem; font-weight: 700;
+      color: var(--text); text-align: center;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.4s;
+    }
+    .rest-target-bar.unset .rest-target-display { color: var(--cream-btn); }
+    .rest-card.resting .rest-target-display { color: rgba(255,255,255,0.9); }
+    .rest-target-hint {
+      font-size: 0.6rem; color: var(--cream-btn);
+      letter-spacing: 1px; white-space: nowrap; flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .rest-target-bar.unset .rest-target-hint { opacity: 1; }
+    .rest-target-bar:not(.unset) .rest-target-hint { display: none; }
+
+    /* ============================================================
+       SET FORM
+    ============================================================ */
+    .set-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 16px;
+      margin-bottom: 14px;
+    }
+    .set-form-header {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 14px;
+    }
+    .set-form-exercise {
+      font-family: 'Lora', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--text); flex: 1; min-width: 0;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .set-form-exercise-idle {
+      font-family: 'Lora', serif;
+      font-style: italic; font-size: 0.95rem;
+      color: var(--muted2);
+    }
+    .set-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--text); letter-spacing: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 3px; padding: 6px 14px;
+      flex-shrink: 0; margin-left: 10px;
+    }
+
+    .prefill-hint {
+      font-size: 0.68rem; color: var(--terra-text);
+      margin-bottom: 12px; display: flex;
+      align-items: center; gap: 5px; opacity: 0.85;
+    }
+
+    /* STEPPER FIELDS */
+    .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .field-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .field-label {
+      font-size: 0.56rem; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--muted2);
+    }
+    .stepper {
+      display: flex; align-items: stretch;
+      border: 1px solid var(--border); border-radius: 3px;
+      overflow: hidden; background: var(--surface2);
+    }
+    .stepper-btn {
+      background: var(--border2); border: none;
+      color: var(--muted); font-size: 1.3rem;
+      font-weight: 300; cursor: pointer;
+      padding: 0 14px; min-height: 58px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.1s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .stepper-btn:active { background: var(--terracotta); color: #fff; }
+    .stepper-input {
+      flex: 1; background: transparent; border: none;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.7rem; font-weight: 700;
+      text-align: center; outline: none;
+      width: 0; /* allow flex to control */
+      min-width: 0;
+      /* numeric keypad on iPhone */
+      inputmode: decimal;
+    }
+    .stepper-input::placeholder {
+      color: var(--muted2); font-weight: 400; font-size: 1.2rem;
+    }
+
+    .notes-input {
+      width: 100%; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 3px;
+      padding: 12px 14px; font-size: 0.93rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text); outline: none;
+      resize: none; height: 64px; margin-bottom: 14px;
+    }
+    .notes-input::placeholder { color: var(--muted2); }
+    .notes-input:focus { border-color: var(--cream-btn); }
+
+    /* ============================================================
+       BUTTONS
+    ============================================================ */
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 16px; border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem; font-weight: 800;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.15s;
+      outline: none; min-height: 54px;
+      border-radius: 3px;
+    }
+    .btn:active { transform: scale(0.98); opacity: 0.9; }
+    .btn-primary { background: var(--cream-btn); color: #1a1a1a; }
+    .btn-secondary { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+    .btn-row { display: flex; gap: 8px; }
+    .btn-row .btn { flex: 1; }
+
+    /* ============================================================
+       SETS LOG — LEDGER STYLE
+    ============================================================ */
+    .sets-log { margin-bottom: 14px; }
+    .sets-log-header {
+      font-size: 0.56rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted2); margin-bottom: 8px;
+      padding-bottom: 6px; border-bottom: 1px solid var(--border);
+    }
+    .set-row {
+      display: flex; align-items: flex-start;
+      padding: 10px 0; border-bottom: 1px solid var(--border2);
+      gap: 10px; animation: rowIn 0.2s ease;
+    }
+    @keyframes rowIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    .set-row-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; color: var(--muted2);
+      min-width: 24px; padding-top: 2px; flex-shrink: 0;
+    }
+    .set-row-main { flex: 1; min-width: 0; }
+    .set-row-data {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.95rem; font-weight: 600; color: var(--text);
+    }
+    .set-row-meta {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 3px;
+    }
+    .set-row-notes { font-size: 0.72rem; color: var(--muted); }
+    .set-row-rest { font-size: 0.7rem; color: var(--terra-text); }
+    .set-row-time {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem; color: var(--muted2);
+      padding-top: 3px; flex-shrink: 0;
+    }
+    .set-row-actions {
+      display: flex; gap: 4px; flex-shrink: 0;
+    }
+    .set-action-btn {
+      background: none; border: none;
+      color: var(--muted2); font-size: 0.8rem;
+      cursor: pointer; padding: 4px 8px;
+      border-radius: 3px; min-height: 36px;
+      min-width: 36px; display: flex;
+      align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .set-action-btn.edit:active { color: var(--cream-btn); background: var(--border); }
+    .set-action-btn.del:active { color: var(--danger); background: rgba(239,68,68,0.1); }
+
+    /* INLINE EDIT ROW */
+    .set-edit-row {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px; padding: 10px 12px;
+      margin-bottom: 4px; display: none;
+      flex-direction: column; gap: 8px;
+      animation: rowIn 0.2s ease;
+    }
+    .set-edit-row.open { display: flex; }
+    .set-edit-fields { display: flex; gap: 8px; }
+    .set-edit-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .set-edit-label {
+      font-size: 0.52rem; letter-spacing: 2px;
+      color: var(--muted2); text-transform: uppercase; font-weight: 700;
+    }
+    .set-edit-input {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 3px; color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.1rem; font-weight: 700;
+      text-align: center; padding: 8px 6px; outline: none; width: 100%;
+    }
+    .set-edit-input:focus { border-color: var(--cream-btn); }
+    .set-edit-notes {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 3px; color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem; padding: 8px 10px;
+      outline: none; width: 100%; resize: none; height: 48px;
+    }
+    .set-edit-notes:focus { border-color: var(--cream-btn); }
+    .set-edit-actions { display: flex; gap: 6px; }
+    .set-edit-save {
+      flex: 1; background: var(--cream-btn); border: none;
+      border-radius: 3px; color: #1a1a1a;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem; font-weight: 800;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 10px; cursor: pointer; min-height: 40px;
+    }
+    .set-edit-cancel {
+      background: none; border: 1px solid var(--border);
+      border-radius: 3px; color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.75rem; font-weight: 600;
+      padding: 10px 14px; cursor: pointer; min-height: 40px;
+    }
+
+    /* ============================================================
+       SESSION SUMMARY
+    ============================================================ */
+    .summary-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .summary-row {
+      display: flex; justify-content: space-between;
+      align-items: center; padding: 9px 0;
+      border-bottom: 1px solid var(--border2);
+    }
+    .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .summary-row:first-child { padding-top: 0; }
+    .summary-ex-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .summary-ex-count { font-size: 0.75rem; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+
+    .divider { height: 1px; background: var(--border2); margin: 14px 0; }
+
+    /* ============================================================
+       HISTORY MODAL (slides up from bottom)
+    ============================================================ */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85); z-index: 500;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface2);
+      border: 1px solid var(--border); border-bottom: none;
+      border-radius: 16px 16px 0 0;
+      width: 100%; max-width: 480px; max-height: 82vh;
+      overflow-y: auto; padding-bottom: 40px;
+      transform: translateY(40px); transition: transform 0.3s ease;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-handle {
+      width: 36px; height: 4px;
+      background: var(--border); border-radius: 2px;
+      margin: 13px auto 0;
+    }
+    .modal-header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .modal-title {
+      font-family: 'Lora', serif;
+      font-size: 1.3rem; font-weight: 700; color: var(--text);
+    }
+    .modal-sub { font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
+    .modal-close {
+      background: var(--border2); border: none;
+      color: var(--muted); width: 34px; height: 34px;
+      border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+    }
+    .modal-body { padding: 18px; }
+    .modal-loading {
+      text-align: center; padding: 40px 20px;
+      color: var(--muted); font-size: 0.85rem;
+    }
+    .modal-spinner {
+      width: 24px; height: 24px; border: 2px solid var(--border);
+      border-top-color: var(--cream-btn); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .history-session { margin-bottom: 24px; }
+    .history-date {
+      font-size: 0.58rem; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--muted2); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .history-date::after { content:''; flex:1; height:1px; background:var(--border2); }
+    .history-set-row {
+      display: flex; align-items: flex-start;
+      padding: 8px 0; border-bottom: 1px solid var(--border2); gap: 10px;
+    }
+    .history-set-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem; color: var(--muted2); min-width: 22px; padding-top: 2px;
+    }
+    .history-set-detail {
+      flex: 1; font-size: 0.88rem; font-weight: 600; color: var(--text);
+    }
+    .history-set-notes { font-size: 0.72rem; color: var(--muted); margin-top: 2px; font-weight: 400; }
+    .history-set-rest { font-size: 0.68rem; color: var(--terra-text); margin-top: 2px; }
+    .history-set-time {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.62rem; color: var(--muted2); padding-top: 2px; flex-shrink: 0;
+    }
+    .modal-empty {
+      text-align: center; padding: 44px 20px;
+      color: var(--muted); font-size: 0.88rem; line-height: 1.8;
+    }
+    .modal-empty-icon { font-size: 2.4rem; margin-bottom: 14px; }
+
+    /* ============================================================
+       CONFIRM MODAL
+    ============================================================ */
+    .confirm-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.9); z-index: 600;
+      display: flex; align-items: center; justify-content: center;
+      padding: 30px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .confirm-overlay.open { opacity: 1; pointer-events: all; }
+    .confirm-box {
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 28px 22px; width: 100%; max-width: 320px;
+      text-align: center;
+      transform: scale(0.94); transition: transform 0.2s;
+    }
+    .confirm-overlay.open .confirm-box { transform: scale(1); }
+    .confirm-icon { font-size: 2rem; margin-bottom: 12px; }
+    .confirm-title {
+      font-family: 'Lora', serif;
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--danger); margin-bottom: 8px;
+    }
+    .confirm-msg {
+      font-size: 0.88rem; color: var(--muted);
+      line-height: 1.65; margin-bottom: 22px;
+    }
+    .confirm-msg strong { color: var(--text); }
+    .confirm-buttons { display: flex; gap: 8px; }
+    .confirm-btn {
+      flex: 1; padding: 13px; border-radius: 3px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem; font-weight: 800;
+      letter-spacing: 1px; text-transform: uppercase;
+      border: none; cursor: pointer; min-height: 48px;
+    }
+    .confirm-btn:active { opacity: 0.85; }
+    .confirm-cancel { background: var(--border); color: var(--text); }
+    .confirm-delete { background: var(--danger); color: #fff; }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px; padding: 11px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--text); white-space: nowrap;
+      z-index: 700; opacity: 0;
+      transition: all 0.25s ease; pointer-events: none;
+      max-width: calc(100vw - 40px); text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: rgba(74,222,128,0.3); color: var(--success); }
+    .toast.error   { border-color: rgba(239,68,68,0.3); color: var(--danger); }
+    .toast.queued  { border-color: rgba(245,158,11,0.3); color: var(--warning); }
+
+    /* ============================================================
+       SPINNER (for log button)
+    ============================================================ */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #1a1a1a; border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-title">Training Log</div>
+  <div class="header-right">
+    <div class="header-date" id="headerDate"></div>
+  </div>
+</div>
+
+<!-- SESSION BAR -->
+<div class="session-bar">
+  <div class="session-status">
+    <div class="session-pill" id="sessionPill">
+      <div class="session-pill-dot"></div>
+      <div class="session-pill-label">Active</div>
+    </div>
+    <div class="session-idle" id="sessionIdle">No active session</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="offline-badge" id="offlineBadge">⚡ Queued</div>
+    <div class="session-timer hidden" id="sessionTimer">00:00</div>
+  </div>
+</div>
+
+<!-- RESTORE BANNER -->
+<div id="restoreBanner" class="restore-banner hidden">
+  <div class="restore-icon">⚡</div>
+  <div class="restore-text">
+    <div class="restore-title">Restore Session?</div>
+    <div class="restore-sub" id="restoreSub">You have an unfinished session from today</div>
+  </div>
+  <div class="restore-actions">
+    <button class="restore-yes" onclick="restoreSession()">Restore</button>
+    <button class="restore-no" onclick="dismissRestore()">Discard</button>
+  </div>
+</div>
+
+<!-- START SCREEN -->
+<div id="startScreen" class="start-screen">
+  <div class="start-logo">Training<br/>Log</div>
+  <p class="start-tagline">Log sets. Track progress.<br/>Syncs to Google Sheets automatically.</p>
+  <button class="btn btn-primary" style="max-width:260px" onclick="startSession()">Start Session</button>
+</div>
+
+<!-- ACTIVE SESSION -->
+<div id="activeSession" class="content hidden">
+
+  <!-- EXERCISE SELECTOR -->
+  <div class="section-label">Exercise</div>
+  <div class="exercise-block">
+    <div class="exercise-name-row" onclick="toggleExerciseSelect()">
+      <div id="exerciseDisplay" class="exercise-name-placeholder">
+        <span>— Tap to select —</span>
+        <span style="font-size:0.8rem;color:var(--muted2)">▾</span>
+      </div>
+      <div class="exercise-change-hint" id="exerciseChangeHint" style="display:none">Tap to change</div>
+    </div>
+    <div class="exercise-select-row" id="exerciseSelectRow">
+      <select class="exercise-select" id="exerciseSelect" onchange="onExerciseSelect()">
+        <option value="">— Select exercise —</option>
+      </select>
+      <div class="add-exercise-row">
+        <input type="text" class="add-exercise-input" id="newExerciseInput" placeholder="Add new exercise..." maxlength="60"/>
+        <button class="add-exercise-btn" onclick="addExercise()">+ Add</button>
+      </div>
+    </div>
+    <div class="exercise-action-row" id="exerciseActionRow">
+      <button class="btn-history" onclick="openHistory()">📊 Last 3 Sessions</button>
+      <button class="btn-remove-ex" onclick="deleteExercise()">Remove</button>
+    </div>
+  </div>
+
+  <!-- REST TIMER -->
+  <div class="rest-card hidden" id="restCard">
+    <div class="rest-top">
+      <div class="rest-left">
+        <div class="rest-label" id="restLabel">Rest Timer</div>
+        <div class="rest-timer-display" id="restDisplay">00:00</div>
+        <div class="rest-next-set" id="restNextSet">
+          <div class="rest-next-label">Next set at</div>
+          <div id="restNextTime"></div>
+        </div>
+      </div>
+      <button class="rest-reset-btn" onclick="resetRestTimer()">↺ Reset</button>
+    </div>
+    <!-- Target rest stepper — prominent, set before first set -->
+    <div class="rest-target-bar unset" id="restTargetBar">
+      <div class="rest-target-label">Target Rest</div>
+      <div class="rest-target-stepper">
+        <button class="rest-target-btn" onclick="stepRestTarget(-1)">−</button>
+        <div class="rest-target-display" id="restTargetDisplay">— : —</div>
+        <button class="rest-target-btn" onclick="stepRestTarget(1)">+</button>
+      </div>
+      <div class="rest-target-hint">Set before 1st set</div>
+    </div>
+  </div>
+
+  <!-- SET FORM -->
+  <div class="set-form">
+    <div class="set-form-header">
+      <div id="setFormTitle" class="set-form-exercise-idle">Select an exercise</div>
+      <div class="set-badge" id="setBadge">—</div>
+    </div>
+
+    <div id="prefillHint" class="prefill-hint hidden">✦ Pre-filled from last session</div>
+
+    <!-- Weight FIRST, then Reps -->
+    <div class="fields-grid">
+      <div class="field-wrap">
+        <div class="field-label">Weight (lbs)</div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="stepWeight(-1)">−</button>
+          <input type="text" inputmode="decimal" class="stepper-input"
+            id="weightInput" placeholder="0" />
+          <button class="stepper-btn" onclick="stepWeight(1)">+</button>
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">Reps</div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="stepReps(-1)">−</button>
+          <input type="text" inputmode="numeric" class="stepper-input"
+            id="repsInput" placeholder="0" />
+          <button class="stepper-btn" onclick="stepReps(1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <textarea class="notes-input" id="notesInput" placeholder="RPE, notes, how it felt..."></textarea>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="logBtn" onclick="logSet()">Log Set</button>
+      <button class="btn btn-secondary" onclick="clearSetForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- SETS LOG -->
+  <div id="setsLog" class="sets-log hidden">
+    <div class="sets-log-header" id="setsLogLabel">Logged Sets</div>
+    <div id="setsContainer"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SESSION SUMMARY -->
+  <div class="summary-block hidden" id="sessionSummary">
+    <div class="section-label">This Session</div>
+    <div id="summaryContent"></div>
+  </div>
+
+  <button class="btn btn-danger" onclick="confirmEndSession()">End Session</button>
+
+</div><!-- /activeSession -->
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay" id="historyOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">History</div>
+        <div class="modal-sub" id="modalSub">Last 3 sessions from Google Sheets</div>
+      </div>
+      <button class="modal-close" onclick="closeHistory()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">Remove Set?</div>
+    <div class="confirm-msg" id="confirmMsg">Are you sure?</div>
+    <div class="confirm-buttons">
+      <button class="confirm-btn confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="confirm-btn confirm-delete" onclick="executeDeleteSet()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+//  ⚙️  PASTE YOUR APPS SCRIPT URL BELOW
+// =============================================
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+// =============================================
+// DEFAULT EXERCISES
+// =============================================
+const DEFAULT_EXERCISES = [
+  'Abs Crunch',
+  'Clean And Press',
+  'Deadlift',
+  'Incline Bench Press 30 Degree',
+  'Lateral Raise Dumbbell Inward',
+  'Pull Ups',
+  'Push Press',
+  'Squat',
+  'Strict Shoulder Press'
+];
+
+// =============================================
+// STORAGE KEYS
+// =============================================
+const LS_EXERCISES = 'gym_exercises';
+const LS_QUEUE     = 'gym_offline_queue';
+const LS_SESSION   = 'gym_active_session';
+
+// =============================================
+// STATE
+// =============================================
+let sessionActive    = false;
+let sessionStartTime = null;
+let sessionTimerInt  = null;
+let sessionLog       = {};   // { exercise: [setEntry, ...] }
+
+let restTimerInt     = null;
+let restStartTime    = null;
+let restElapsed      = 0;    // seconds
+let restActive       = false;
+let restTargetSecs   = 0;    // 0 = not set
+
+let pendingDelEx     = null;
+let pendingDelIdx    = null;
+let editingEx        = null;
+let editingIdx       = null;
+
+let exerciseSelectOpen = false;
+
+// Persistent
+let userExercises = JSON.parse(localStorage.getItem(LS_EXERCISES) || '[]');
+let exerciseList  = [...new Set([...DEFAULT_EXERCISES, ...userExercises])].sort();
+let offlineQueue  = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded', () => {
+  updateHeaderDate();
+  setInterval(updateHeaderDate, 30000);
+  populateDropdown();
+  document.getElementById('newExerciseInput')
+    .addEventListener('keydown', e => { if (e.key === 'Enter') addExercise(); });
+  updateOfflineBadge();
+  setInterval(flushQueue, 5000);
+  checkForSavedSession();
+});
+
+// =============================================
+// HEADER DATE
+// =============================================
+function updateHeaderDate() {
+  const n = new Date();
+  document.getElementById('headerDate').innerHTML =
+    n.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short' }) +
+    '<br/>' + n.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+}
+
+// =============================================
+// SESSION PERSISTENCE (refresh recovery)
+// =============================================
+function saveSessionState() {
+  if (!sessionActive) return;
+  localStorage.setItem(LS_SESSION, JSON.stringify({
+    sessionLog,
+    sessionStartTime: sessionStartTime ? sessionStartTime.toISOString() : null,
+    date: new Date().toLocaleDateString('en-GB')
+  }));
+}
+
+function clearSessionState() {
+  localStorage.removeItem(LS_SESSION);
+}
+
+function checkForSavedSession() {
+  const raw = localStorage.getItem(LS_SESSION);
+  if (!raw) return;
+  try {
+    const state = JSON.parse(raw);
+    const today = new Date().toLocaleDateString('en-GB');
+    if (state.date !== today) { clearSessionState(); return; }
+    const totalSets = Object.values(state.sessionLog).reduce((a, b) => a + b.length, 0);
+    if (totalSets === 0) { clearSessionState(); return; }
+    const exercises = Object.keys(state.sessionLog);
+    const summary = exercises.map(ex =>
+      `${ex} (${state.sessionLog[ex].length} set${state.sessionLog[ex].length !== 1 ? 's' : ''})`
+    ).join(', ');
+    document.getElementById('restoreSub').textContent =
+      `${totalSets} set${totalSets !== 1 ? 's' : ''} · ${summary}`;
+    document.getElementById('restoreBanner').classList.remove('hidden');
+  } catch { clearSessionState(); }
+}
+
+function restoreSession() {
+  const raw = localStorage.getItem(LS_SESSION);
+  if (!raw) return;
+  try {
+    const state = JSON.parse(raw);
+    sessionLog = state.sessionLog;
+    sessionStartTime = state.sessionStartTime ? new Date(state.sessionStartTime) : new Date();
+    document.getElementById('restoreBanner').classList.add('hidden');
+    sessionActive = true;
+    showSessionUI();
+    renderSessionSummary();
+    showToast('Session restored ✓', 'success');
+  } catch {
+    clearSessionState();
+    document.getElementById('restoreBanner').classList.add('hidden');
+    showToast('Could not restore session', 'error');
+  }
+}
+
+function dismissRestore() {
+  clearSessionState();
+  document.getElementById('restoreBanner').classList.add('hidden');
+}
+
+// =============================================
+// EXERCISE DROPDOWN
+// =============================================
+function populateDropdown(selected = '') {
+  const sel = document.getElementById('exerciseSelect');
+  sel.innerHTML = '<option value="">— Select exercise —</option>';
+  exerciseList.forEach(ex => {
+    const o = document.createElement('option');
+    o.value = ex; o.textContent = ex;
+    if (ex === selected) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function saveUserExercises() {
+  const extras = exerciseList.filter(e => !DEFAULT_EXERCISES.includes(e));
+  localStorage.setItem(LS_EXERCISES, JSON.stringify(extras));
+}
+
+function toggleExerciseSelect() {
+  exerciseSelectOpen = !exerciseSelectOpen;
+  document.getElementById('exerciseSelectRow').classList.toggle('open', exerciseSelectOpen);
+}
+
+function onExerciseSelect() {
+  const name = currentExercise();
+  const display = document.getElementById('exerciseDisplay');
+  const hint = document.getElementById('exerciseChangeHint');
+
+  if (name) {
+    display.className = 'exercise-name';
+    display.innerHTML = `<span>${name}</span><span style="font-size:0.8rem;color:var(--muted2)">▾</span>`;
+    hint.style.display = 'block';
+    // Close the select row
+    exerciseSelectOpen = false;
+    document.getElementById('exerciseSelectRow').classList.remove('open');
+    document.getElementById('exerciseActionRow').classList.add('visible');
+    document.getElementById('restCard').classList.remove('hidden');
+    if (!restActive) { restElapsed = 0; updateRestUI(false); }
+    initRestTarget();
+    // Smart pre-fill: session first, then Sheets
+    clearSetForm();
+    prefillForExercise(name);
+  } else {
+    display.className = 'exercise-name-placeholder';
+    display.innerHTML = `<span>— Tap to select —</span><span style="font-size:0.8rem;color:var(--muted2)">▾</span>`;
+    hint.style.display = 'none';
+    document.getElementById('exerciseActionRow').classList.remove('visible');
+    document.getElementById('restCard').classList.add('hidden');
+    stopRestTimer();
+    document.getElementById('prefillHint').classList.add('hidden');
+  }
+
+  updateSetBadge(name);
+  renderSetsLog(name);
+}
+
+function currentExercise() {
+  return document.getElementById('exerciseSelect').value;
+}
+
+function resetExerciseUI() {
+  const display = document.getElementById('exerciseDisplay');
+  display.className = 'exercise-name-placeholder';
+  display.innerHTML = `<span>— Tap to select —</span><span style="font-size:0.8rem;color:var(--muted2)">▾</span>`;
+  document.getElementById('exerciseChangeHint').style.display = 'none';
+  document.getElementById('exerciseSelectRow').classList.remove('open');
+  document.getElementById('exerciseActionRow').classList.remove('visible');
+  document.getElementById('restCard').classList.add('hidden');
+  document.getElementById('prefillHint').classList.add('hidden');
+  exerciseSelectOpen = false;
+  stopRestTimer(); restElapsed = 0;
+  updateSetBadge('');
+  renderSetsLog('');
+}
+
+// =============================================
+// ADD / DELETE EXERCISE
+// =============================================
+function addExercise() {
+  const input = document.getElementById('newExerciseInput');
+  const raw = input.value.trim();
+  if (!raw) { showToast('Enter an exercise name', 'error'); return; }
+  const name = raw.replace(/\b\w/g, c => c.toUpperCase());
+  const existing = exerciseList.find(e => e.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    populateDropdown(existing);
+    document.getElementById('exerciseSelect').value = existing;
+    onExerciseSelect();
+    input.value = '';
+    showToast(`${existing} already exists — selected!`, 'success');
+    return;
+  }
+  exerciseList.push(name);
+  exerciseList.sort();
+  saveUserExercises();
+  populateDropdown(name);
+  document.getElementById('exerciseSelect').value = name;
+  input.value = '';
+  onExerciseSelect();
+  showToast(`${name} added ✓`, 'success');
+}
+
+function deleteExercise() {
+  const name = currentExercise();
+  if (!name) return;
+  if (!confirm(`Remove "${name}" from your exercise list?`)) return;
+  exerciseList = exerciseList.filter(e => e !== name);
+  saveUserExercises();
+  populateDropdown('');
+  document.getElementById('exerciseSelect').value = '';
+  resetExerciseUI();
+  showToast(`${name} removed`, 'error');
+}
+
+// =============================================
+// OFFLINE QUEUE
+// =============================================
+function updateOfflineBadge() {
+  const el = document.getElementById('offlineBadge');
+  if (offlineQueue.length > 0) {
+    el.textContent = `⚡ ${offlineQueue.length} queued`;
+    el.classList.add('visible');
+  } else {
+    el.classList.remove('visible');
+  }
+}
+
+async function flushQueue() {
+  if (offlineQueue.length === 0) return;
+  const batch = [...offlineQueue];
+  offlineQueue = [];
+  const failed = [];
+  for (const item of batch) {
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+    } catch { failed.push(item); }
+  }
+  offlineQueue = failed;
+  localStorage.setItem(LS_QUEUE, JSON.stringify(offlineQueue));
+  updateOfflineBadge();
+  if (failed.length === 0 && batch.length > 0) {
+    showToast(`${batch.length} queued set(s) synced ✓`, 'success');
+  }
+}
+
+// =============================================
+// SMART PRE-FILL
+// Priority: 1) current session last set, 2) Sheets last entry
+// =============================================
+function prefillForExercise(exercise) {
+  // Priority 1: last set in current session
+  if (sessionLog[exercise] && sessionLog[exercise].length > 0) {
+    const sets = sessionLog[exercise];
+    const last = sets[sets.length - 1];
+    if (last.weight && last.weight !== '—') {
+      document.getElementById('weightInput').value = last.weight;
+    }
+    if (last.reps && last.reps !== '—') {
+      document.getElementById('repsInput').value = last.reps;
+    }
+    // No hint shown for mid-session fill — it's expected
+    document.getElementById('prefillHint').classList.add('hidden');
+    return;
+  }
+
+  // Priority 2: fetch last entry from Sheets
+  fetchLastEntryFromSheets(exercise);
+}
+
+async function fetchLastEntryFromSheets(exercise) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
+  try {
+    const url = `${APPS_SCRIPT_URL}?action=prefill&exercise=${encodeURIComponent(exercise)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) return;
+    const data = await resp.json();
+    // Only fill if the exercise selected hasn't changed while we were fetching
+    if (currentExercise() !== exercise) return;
+    if (data && data.weight && data.weight !== '—') {
+      document.getElementById('weightInput').value = data.weight;
+      document.getElementById('prefillHint').classList.remove('hidden');
+    }
+    if (data && data.reps && data.reps !== '—') {
+      document.getElementById('repsInput').value = data.reps;
+    }
+  } catch { /* silently fail, user can enter manually */ }
+}
+
+// =============================================
+// HISTORY — fetch from Sheets
+// =============================================
+async function openHistory() {
+  const exercise = currentExercise();
+  if (!exercise) return;
+  document.getElementById('modalTitle').textContent = exercise;
+  document.getElementById('modalSub').textContent = 'Last 3 sessions · Google Sheets';
+  document.getElementById('historyOverlay').classList.add('open');
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-loading">
+      <div class="modal-spinner"></div>
+      Loading from Sheets...
+    </div>`;
+
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-empty">
+        <div class="modal-empty-icon">⚙️</div>
+        Apps Script URL not configured yet.<br/>
+        <span style="font-size:0.78rem">Paste your URL in the file to enable history.</span>
+      </div>`;
+    return;
+  }
+
+  try {
+    const url = `${APPS_SCRIPT_URL}?action=history&exercise=${encodeURIComponent(exercise)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('fetch failed');
+    const sessions = await resp.json();
+
+    if (!sessions || sessions.length === 0) {
+      document.getElementById('modalBody').innerHTML = `
+        <div class="modal-empty">
+          <div class="modal-empty-icon">🏋️</div>
+          No history yet for<br/><strong style="color:var(--cream-btn)">${exercise}</strong><br/>
+          <span style="font-size:0.78rem">Your first session will appear here.</span>
+        </div>`;
+      return;
+    }
+
+    document.getElementById('modalBody').innerHTML = sessions.map(session => `
+      <div class="history-session">
+        <div class="history-date">${session.date}</div>
+        ${session.sets.map((s, i) => `
+          <div class="history-set-row">
+            <div class="history-set-num">S${s.setNum || i + 1}</div>
+            <div class="history-set-detail">
+              <strong>${s.weight}lbs</strong> · ${s.reps} reps
+              ${s.notes && s.notes !== '—' ? `<div class="history-set-notes">📝 ${s.notes}</div>` : ''}
+              ${s.restTime && s.restTime !== '—' ? `<div class="history-set-rest">⏱ ${s.restTime}</div>` : ''}
+            </div>
+            <div class="history-set-time">${s.time || ''}</div>
+          </div>`).join('')}
+      </div>`).join('');
+  } catch {
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-empty">
+        <div class="modal-empty-icon">⚠️</div>
+        Couldn't load history.<br/>
+        <span style="font-size:0.78rem">Check your connection and try again.</span>
+      </div>`;
+  }
+}
+
+function closeHistory() { document.getElementById('historyOverlay').classList.remove('open'); }
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('historyOverlay')) closeHistory();
+}
+
+// =============================================
+// REST TIMER
+// =============================================
+// =============================================
+// REST TARGET STEPPER
+// 30-second increments, 0:30 → 5:00, default 3:00
+// =============================================
+const REST_TARGET_STEPS = [
+  30, 60, 90, 120, 150, 180, 210, 240, 270, 300  // 0:30 to 5:00
+];
+let restTargetIdx = 5; // default index 5 = 180s = 3:00
+
+function initRestTarget() {
+  restTargetSecs = REST_TARGET_STEPS[restTargetIdx];
+  updateRestTargetDisplay();
+  // Mark as unset until user explicitly changes it
+  document.getElementById('restTargetBar').classList.add('unset');
+}
+
+function stepRestTarget(dir) {
+  const newIdx = restTargetIdx + dir;
+  if (newIdx < 0 || newIdx >= REST_TARGET_STEPS.length) return;
+  restTargetIdx = newIdx;
+  restTargetSecs = REST_TARGET_STEPS[restTargetIdx];
+  updateRestTargetDisplay();
+  // Once touched, remove the "unset" highlight
+  document.getElementById('restTargetBar').classList.remove('unset');
+}
+
+function updateRestTargetDisplay() {
+  const secs = REST_TARGET_STEPS[restTargetIdx];
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  document.getElementById('restTargetDisplay').textContent =
+    `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function startRestTimer() {
+  stopRestTimer();
+  restStartTime = Date.now();
+  restElapsed = 0;
+  restActive = true;
+  restTimerInt = setInterval(() => {
+    restElapsed = Math.floor((Date.now() - restStartTime) / 1000);
+    updateRestUI(true);
+  }, 1000);
+}
+
+function stopRestTimer() {
+  clearInterval(restTimerInt); restTimerInt = null; restActive = false;
+}
+
+function resetRestTimer() {
+  stopRestTimer(); restElapsed = 0;
+  document.getElementById('restNextSet').classList.remove('visible');
+  updateRestUI(false);
+}
+
+function updateRestUI(isResting) {
+  const card    = document.getElementById('restCard');
+  const display = document.getElementById('restDisplay');
+  const label   = document.getElementById('restLabel');
+  const m = String(Math.floor(restElapsed / 60)).padStart(2, '0');
+  const s = String(restElapsed % 60).padStart(2, '0');
+  display.textContent = `${m}:${s}`;
+
+  if (isResting) {
+    card.classList.add('resting');
+    label.textContent = 'Resting';
+  } else {
+    card.classList.remove('resting');
+    label.textContent = 'Rest Timer';
+  }
+}
+
+function showNextSetTime() {
+  if (!restTargetSecs) return;
+  const nextSetAt = new Date(Date.now() + restTargetSecs * 1000);
+  const timeStr = nextSetAt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('restNextTime').textContent = timeStr;
+  document.getElementById('restNextSet').classList.add('visible');
+}
+
+function getRestStr() {
+  if (restElapsed === 0) return '—';
+  const m = Math.floor(restElapsed / 60);
+  const s = restElapsed % 60;
+  return m === 0 ? `${s}s` : `${m}m ${s}s`;
+}
+
+// =============================================
+// SET BADGE
+// =============================================
+function updateSetBadge(exercise) {
+  const badge = document.getElementById('setBadge');
+  const title = document.getElementById('setFormTitle');
+  if (!exercise) {
+    badge.textContent = '—';
+    title.className = 'set-form-exercise-idle';
+    title.textContent = 'Select an exercise';
+    return;
+  }
+  const next = (sessionLog[exercise] || []).length + 1;
+  badge.textContent = `Set ${next}`;
+  title.className = 'set-form-exercise';
+  title.textContent = exercise;
+}
+
+function getNextSetNum(exercise) {
+  return (sessionLog[exercise] || []).length + 1;
+}
+
+// =============================================
+// STEPPER BUTTONS
+// =============================================
+function stepWeight(dir) {
+  const el = document.getElementById('weightInput');
+  const current = parseFloat(el.value) || 0;
+  const next = Math.max(0, current + dir * 0.5);
+  el.value = Number.isInteger(next) ? next : next.toFixed(1);
+}
+
+function stepReps(dir) {
+  const el = document.getElementById('repsInput');
+  const current = parseInt(el.value) || 0;
+  el.value = Math.max(0, current + dir);
+}
+
+// =============================================
+// SESSION
+// =============================================
+function startSession() {
+  sessionActive = true;
+  sessionStartTime = new Date();
+  showSessionUI();
+}
+
+function showSessionUI() {
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('activeSession').classList.remove('hidden');
+  document.getElementById('sessionPill').classList.add('active');
+  document.getElementById('sessionIdle').style.display = 'none';
+  document.getElementById('sessionTimer').classList.remove('hidden');
+  sessionTimerInt = setInterval(updateSessionTimer, 1000);
+  updateSessionTimer();
+}
+
+function updateSessionTimer() {
+  const e = Math.floor((new Date() - sessionStartTime) / 1000);
+  const m = String(Math.floor(e / 60)).padStart(2, '0');
+  const s = String(e % 60).padStart(2, '0');
+  document.getElementById('sessionTimer').textContent = `${m}:${s}`;
+}
+
+function confirmEndSession() {
+  const total = Object.values(sessionLog).reduce((a, b) => a + b.length, 0);
+  const msg = total === 0
+    ? 'End session with no sets logged?'
+    : `End session?\n${total} sets across ${Object.keys(sessionLog).length} exercise(s) logged.`;
+  if (confirm(msg)) endSession();
+}
+
+function endSession() {
+  clearInterval(sessionTimerInt); stopRestTimer();
+  sessionActive = false; sessionLog = {};
+  clearSessionState();
+  document.getElementById('startScreen').classList.remove('hidden');
+  document.getElementById('activeSession').classList.add('hidden');
+  document.getElementById('sessionPill').classList.remove('active');
+  document.getElementById('sessionIdle').style.display = '';
+  document.getElementById('sessionTimer').classList.add('hidden');
+  document.getElementById('exerciseSelect').value = '';
+  document.getElementById('setsLog').classList.add('hidden');
+  document.getElementById('sessionSummary').classList.add('hidden');
+  clearSetForm(); resetExerciseUI();
+  showToast('Session ended. Great work! 🔥', 'success');
+}
+
+// =============================================
+// LOG SET
+// =============================================
+async function logSet() {
+  const exercise = currentExercise();
+  const weight   = document.getElementById('weightInput').value.trim();
+  const reps     = document.getElementById('repsInput').value.trim();
+  const notes    = document.getElementById('notesInput').value.trim();
+
+  if (!exercise) { showToast('Select an exercise first', 'error'); return; }
+  if (!reps)     { showToast('Enter reps', 'error'); return; }
+
+  const now     = new Date();
+  const date    = now.toLocaleDateString('en-GB');
+  const time    = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const restStr = getRestStr();
+  const setNum  = getNextSetNum(exercise);
+
+  const setEntry = {
+    setNum, weight: weight || '—', reps,
+    notes: notes || '—', restTime: restStr, time
+  };
+
+  if (!sessionLog[exercise]) sessionLog[exercise] = [];
+  sessionLog[exercise].push(setEntry);
+  saveSessionState();
+
+  // Show "next set at" time immediately
+  showNextSetTime();
+
+  updateSetBadge(exercise);
+  renderSetsLog(exercise);
+  renderSessionSummary();
+
+  // Mid-session pre-fill: weight carries forward, clear reps
+  if (weight) document.getElementById('weightInput').value = weight;
+  document.getElementById('repsInput').value = '';
+  document.getElementById('notesInput').value = '';
+  document.getElementById('prefillHint').classList.add('hidden');
+
+  startRestTimer();
+
+  // Send to Sheets
+  const payload = { exercise, date, time, sets: setNum, reps, weight: weight || '—', notes: notes || '—', restTime: restStr };
+  const btn = document.getElementById('logBtn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showToast(`Set ${setNum} saved ✓`, 'success');
+  } catch {
+    offlineQueue.push(payload);
+    localStorage.setItem(LS_QUEUE, JSON.stringify(offlineQueue));
+    updateOfflineBadge();
+    showToast(`Set ${setNum} saved offline · will sync`, 'queued');
+  } finally {
+    btn.innerHTML = 'Log Set';
+    btn.disabled = false;
+  }
+}
+
+function clearSetForm() {
+  document.getElementById('weightInput').value = '';
+  document.getElementById('repsInput').value   = '';
+  document.getElementById('notesInput').value  = '';
+}
+
+// =============================================
+// EDIT SET (inline)
+// =============================================
+function openEditSet(exercise, index) {
+  if (editingIdx !== null) closeEditSet();
+  editingEx = exercise; editingIdx = index;
+  const editRow = document.getElementById(`editrow-${index}`);
+  if (!editRow) return;
+  const set = sessionLog[exercise][index];
+  editRow.querySelector('.edit-weight').value = set.weight !== '—' ? set.weight : '';
+  editRow.querySelector('.edit-reps').value   = set.reps   !== '—' ? set.reps   : '';
+  editRow.querySelector('.edit-notes').value  = set.notes  !== '—' ? set.notes  : '';
+  editRow.classList.add('open');
+}
+
+function closeEditSet() {
+  if (editingIdx === null) return;
+  const editRow = document.getElementById(`editrow-${editingIdx}`);
+  if (editRow) editRow.classList.remove('open');
+  editingEx = null; editingIdx = null;
+}
+
+async function saveEditSet(exercise, index) {
+  const editRow = document.getElementById(`editrow-${index}`);
+  if (!editRow) return;
+  const newWeight = editRow.querySelector('.edit-weight').value.trim();
+  const newReps   = editRow.querySelector('.edit-reps').value.trim();
+  const newNotes  = editRow.querySelector('.edit-notes').value.trim();
+
+  if (!newReps) { showToast('Reps required', 'error'); return; }
+
+  sessionLog[exercise][index].weight = newWeight || '—';
+  sessionLog[exercise][index].reps   = newReps;
+  sessionLog[exercise][index].notes  = newNotes || '—';
+
+  editingEx = null; editingIdx = null;
+  saveSessionState();
+  renderSetsLog(exercise);
+
+  // Sync the edited values back to Sheets
+  const set  = sessionLog[exercise][index];
+  const date = new Date().toLocaleDateString('en-GB');
+  const payload = {
+    action:   'update',
+    exercise,
+    date,
+    setNum:   set.setNum,
+    weight:   set.weight,
+    reps:     set.reps,
+    notes:    set.notes
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showToast('Set updated ✓', 'success');
+  } catch {
+    showToast('Updated locally · sync failed', 'queued');
+  }
+}
+
+// =============================================
+// DELETE SET
+// =============================================
+function promptDeleteSet(exercise, index) {
+  const set = sessionLog[exercise][index];
+  pendingDelEx  = exercise;
+  pendingDelIdx = index;
+  document.getElementById('confirmMsg').innerHTML =
+    `Remove <strong>Set ${set.setNum}</strong> of <strong>${exercise}</strong>?<br/>
+    <span style="font-size:0.8rem;opacity:0.65;display:block;margin-top:6px">${set.weight}lbs · ${set.reps} reps</span>`;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  pendingDelEx = null; pendingDelIdx = null;
+}
+
+function executeDeleteSet() {
+  if (pendingDelEx === null || pendingDelIdx === null) return;
+  const ex = pendingDelEx, idx = pendingDelIdx;
+  sessionLog[ex].splice(idx, 1);
+  sessionLog[ex].forEach((s, i) => { s.setNum = i + 1; });
+  if (sessionLog[ex].length === 0) delete sessionLog[ex];
+  closeConfirm();
+  updateSetBadge(ex);
+  renderSetsLog(ex);
+  renderSessionSummary();
+  saveSessionState();
+  showToast('Set removed', 'error');
+}
+
+// =============================================
+// RENDER SETS LOG
+// =============================================
+function renderSetsLog(exercise) {
+  const sets = exercise && sessionLog[exercise] ? sessionLog[exercise] : [];
+  const el   = document.getElementById('setsLog');
+  if (sets.length === 0) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  document.getElementById('setsLogLabel').textContent =
+    `${exercise} — This Session`;
+
+  // Escape helper for inline onclick string args
+  const esc = s => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+  document.getElementById('setsContainer').innerHTML = sets.map((s, i) => `
+    <div>
+      <div class="set-row">
+        <div class="set-row-num">${String(s.setNum).padStart(2,'0')}</div>
+        <div class="set-row-main">
+          <div class="set-row-data">${s.weight}lbs &nbsp;·&nbsp; ${s.reps} reps</div>
+          <div class="set-row-meta">
+            ${s.notes && s.notes !== '—' ? `<span class="set-row-notes">📝 ${s.notes}</span>` : ''}
+            ${s.restTime && s.restTime !== '—' ? `<span class="set-row-rest">⏱ ${s.restTime}</span>` : ''}
+          </div>
+        </div>
+        <div class="set-row-time">${s.time}</div>
+        <div class="set-row-actions">
+          <button class="set-action-btn edit" onclick="openEditSet('${esc(exercise)}',${i})">✎</button>
+          <button class="set-action-btn del"  onclick="promptDeleteSet('${esc(exercise)}',${i})">✕</button>
+        </div>
+      </div>
+      <div class="set-edit-row" id="editrow-${i}">
+        <div class="set-edit-fields">
+          <div class="set-edit-field">
+            <div class="set-edit-label">Weight (lbs)</div>
+            <input type="text" inputmode="decimal" class="set-edit-input edit-weight" placeholder="0"/>
+          </div>
+          <div class="set-edit-field">
+            <div class="set-edit-label">Reps</div>
+            <input type="text" inputmode="numeric" class="set-edit-input edit-reps" placeholder="0"/>
+          </div>
+        </div>
+        <textarea class="set-edit-notes edit-notes" placeholder="Notes..."></textarea>
+        <div class="set-edit-actions">
+          <button class="set-edit-save" onclick="saveEditSet('${esc(exercise)}',${i})">Save</button>
+          <button class="set-edit-cancel" onclick="closeEditSet()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+// RENDER SESSION SUMMARY
+// =============================================
+function renderSessionSummary() {
+  const exercises = Object.keys(sessionLog);
+  const el = document.getElementById('sessionSummary');
+  if (exercises.length === 0) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  document.getElementById('summaryContent').innerHTML = exercises.map(ex => {
+    const sets = sessionLog[ex];
+    return `<div class="summary-row">
+      <div class="summary-ex-name">${ex}</div>
+      <div class="summary-ex-count">${sets.length} set${sets.length !== 1 ? 's' : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+// =============================================
+// TOAST
+// =============================================
+let toastTid;
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(toastTid);
+  toastTid = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
